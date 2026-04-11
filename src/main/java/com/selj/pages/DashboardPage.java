@@ -1,6 +1,10 @@
 package com.selj.pages;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.selj.config.DriverManager;
 import com.selj.utils.ElementActions;
+import com.selj.utils.WaitUtils;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -12,12 +16,20 @@ public class DashboardPage extends BasePage {
     @FindBy(id = "logoutBtn")
     private WebElement logoutButton;
 
+    private final Injector injector;
+
+    @Inject
+    public DashboardPage(DriverManager driverManager, ElementActions actions, WaitUtils wait, Injector injector) {
+        super(driverManager, actions, wait);
+        this.injector = injector;
+    }
+
     public String getHeaderTitle() {
-        return ElementActions.getText(headerTitle);
+        return actions.getText(headerTitle);
     }
 
     public LoginPage logout() {
-        ElementActions.click(logoutButton);
-        return new LoginPage();
+        actions.click(logoutButton);
+        return injector.getInstance(LoginPage.class);
     }
 }

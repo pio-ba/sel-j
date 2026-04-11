@@ -1,6 +1,10 @@
 package com.selj.pages;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.selj.config.DriverManager;
 import com.selj.utils.ElementActions;
+import com.selj.utils.WaitUtils;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -18,17 +22,25 @@ public class LoginPage extends BasePage {
     @FindBy(css = ".error-message")
     private WebElement errorMessage;
 
+    private final Injector injector;
+
+    @Inject
+    public LoginPage(DriverManager driverManager, ElementActions actions, WaitUtils wait, Injector injector) {
+        super(driverManager, actions, wait);
+        this.injector = injector;
+    }
+
     public void enterUsername(String username) {
-        ElementActions.type(usernameInput, username);
+        actions.type(usernameInput, username);
     }
 
     public void enterPassword(String password) {
-        ElementActions.type(passwordInput, password);
+        actions.type(passwordInput, password);
     }
 
     public DashboardPage clickLogin() {
-        ElementActions.click(loginButton);
-        return new DashboardPage();
+        actions.click(loginButton);
+        return injector.getInstance(DashboardPage.class);
     }
 
     public DashboardPage login(String username, String password) {
@@ -38,6 +50,6 @@ public class LoginPage extends BasePage {
     }
 
     public String getErrorMessage() {
-        return ElementActions.getText(errorMessage);
+        return actions.getText(errorMessage);
     }
 }

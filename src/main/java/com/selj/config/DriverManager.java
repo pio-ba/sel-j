@@ -1,31 +1,33 @@
 package com.selj.config;
 
+import com.google.inject.Inject;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class DriverManager {
 
-
     private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 
-    public static void initDriver() {
+    private final WebDriver webDriver;
 
-driver.set(new ChromeDriver());
-
+    @Inject
+    public DriverManager(WebDriver webDriver) {
+        this.webDriver = webDriver;
     }
 
-    public static WebDriver getDriver() {
+    public void initDriver() {
+        driver.set(webDriver);
+    }
+
+    public WebDriver getDriver() {
         return driver.get();
     }
 
-    public static void quitDriver() {
+    public void quitDriver() {
         if (driver.get() != null) {
             driver.get().quit();
             driver.remove();
         }
     }
-
 
 
 }
