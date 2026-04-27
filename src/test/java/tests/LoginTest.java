@@ -14,16 +14,16 @@ public class LoginTest extends BaseTest {
     @Story("Valid login")
     @Severity(SeverityLevel.CRITICAL)
     public void validLoginTest() {
-        LoginPage loginPage = injector.getInstance(LoginPage.class);
-        DashboardPage dashboard = loginPage.login("admin", "admin123");
+        loginPage.login("admin", "admin123");
+        DashboardPage dashboard = loginPage.submitLoginAndGetDashboard();
 
         Assert.assertEquals(dashboard.getHeaderTitle(), "Dashboard");
     }
 
     @Test
     public void invalidLoginTest() {
-        LoginPage loginPage = injector.getInstance(LoginPage.class);
         loginPage.login("wrong", "wrong");
+        loginPage.clickLogin();
 
         Assert.assertEquals(loginPage.getErrorMessage(), "Invalid credentials");
     }

@@ -5,8 +5,6 @@ import org.openqa.selenium.WebDriver;
 
 public class DriverManager {
 
-    private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
-
     private final WebDriver webDriver;
 
     @Inject
@@ -15,19 +13,17 @@ public class DriverManager {
     }
 
     public void initDriver() {
-        driver.set(webDriver);
+        // WebDriver już zarządzany przez Guice z ThreadLocal wewnątrz WebDriverProvider
     }
 
     public WebDriver getDriver() {
-        return driver.get();
+        return webDriver;
     }
 
     public void quitDriver() {
-        if (driver.get() != null) {
-            driver.get().quit();
-            driver.remove();
+        if (webDriver != null) {
+            webDriver.quit();
         }
     }
-
 
 }

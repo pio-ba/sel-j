@@ -1,7 +1,6 @@
 package com.selj.utils;
 
 import com.google.inject.Inject;
-import com.selj.config.DriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -12,17 +11,15 @@ import java.time.Duration;
 public class WaitUtils {
 
     private static final long TIMEOUT = 10;
-
-    private final DriverManager driverManager;
+    private final WebDriver webDriver;
 
     @Inject
-    public WaitUtils(DriverManager driverManager) {
-        this.driverManager = driverManager;
+    public WaitUtils(WebDriver webDriver) {
+        this.webDriver = webDriver;
     }
 
     private WebDriverWait getWait() {
-        WebDriver driver = driverManager.getDriver();
-        return new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT));
+        return new WebDriverWait(webDriver, Duration.ofSeconds(TIMEOUT));
     }
 
     public WebElement waitForVisible(WebElement element) {
