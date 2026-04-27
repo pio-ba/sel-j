@@ -1,10 +1,11 @@
 package com.selj.pages;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.selj.config.DriverManager;
+import com.google.inject.Provider;
+import com.selj.config.ConfigReader;
 import com.selj.utils.ElementActions;
 import com.selj.utils.WaitUtils;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -22,12 +23,13 @@ public class LoginPage extends BasePage {
     @FindBy(css = ".error-message")
     private WebElement errorMessage;
 
-    private final Injector injector;
+    private final Provider<DashboardPage> dashboardPageProvider;
 
     @Inject
-    public LoginPage(DriverManager driverManager, ElementActions actions, WaitUtils wait, Injector injector) {
-        super(driverManager, actions, wait);
-        this.injector = injector;
+    public LoginPage(WebDriver driver, ElementActions actions, WaitUtils wait,
+                     Provider<DashboardPage> dashboardPageProvider) {
+        super(driver, actions, wait);
+        this.dashboardPageProvider = dashboardPageProvider;
     }
 
     public void enterUsername(String username) {
@@ -38,15 +40,20 @@ public class LoginPage extends BasePage {
         actions.type(passwordInput, password);
     }
 
-    public DashboardPage clickLogin() {
+    public LoginPage clickLogin() {
         actions.click(loginButton);
-        return injector.getInstance(DashboardPage.class);
+        return this;
     }
 
-    public DashboardPage login(String username, String password) {
+    public DashboardPage submitLoginAndGetDashboard() {
+        actions.click(loginButton);
+        return dashboardPageProvider.get();
+    }
+
+    public LoginPage login(String username, String password) {
         enterUsername(username);
         enterPassword(password);
-        return clickLogin();
+        return this;
     }
 
     public String getErrorMessage() {
