@@ -8,23 +8,30 @@ import org.testng.annotations.Test;
 
 public class LoginTest extends BaseTest {
 
-    @Test(description = "Poprawne logowanie użytkownika")
+    @Test(dataProvider = "validLogin", dataProviderClass = TestData.class,
+            description = "Poprawne logowanie użytkownika")
     @Epic("Authentication")
     @Feature("Login")
     @Story("Valid login")
-    @Severity(SeverityLevel.CRITICAL)
-    public void validLoginTest() {
-        loginPage.login("admin", "admin123");
-        DashboardPage dashboard = loginPage.submitLoginAndGetDashboard();
-
-        Assert.assertEquals(dashboard.getHeaderTitle(), "Dashboard");
+    @Severity(SeverityLevel.NORMAL)
+    public void validLoginTest(String username, String password, String expectedTitle) {
+        LoginPage loginPage = loginPage();
+        DashboardPage dashboard = loginPage.loginAndGetDashboard(username, password);
+        String actualTitle = dashboard.getHeaderTitle();
+        Assert.assertEquals(actualTitle, expectedTitle, "Dashboard title mismatch");
     }
 
-    @Test
-    public void invalidLoginTest() {
-        loginPage.login("wrong", "wrong");
+    @Test(dataProvider = "invalidLogin", dataProviderClass = TestData.class,
+            description = "Niepoprawne logowanie")
+    @Epic("Authentication")
+    @Feature("Login")
+    @Story("Invalid login")
+    @Severity(SeverityLevel.NORMAL)
+    public void invalidLoginTest(String username, String password, String expectedError) {
+        LoginPage loginPage = loginPage();
+        loginPage.login(username, password);
         loginPage.clickLogin();
-
-        Assert.assertEquals(loginPage.getErrorMessage(), "Invalid credentials");
+        String actualError = loginPage.getErrorMessage();
+        Assert.assertEquals(actualError, expectedError, "Error message mismatch");
     }
 }
