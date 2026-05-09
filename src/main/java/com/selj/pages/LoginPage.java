@@ -2,7 +2,6 @@ package com.selj.pages;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.selj.config.ConfigReader;
 import com.selj.utils.ElementActions;
 import com.selj.utils.WaitUtils;
 import org.openqa.selenium.WebDriver;
@@ -32,12 +31,14 @@ public class LoginPage extends BasePage {
         this.dashboardPageProvider = dashboardPageProvider;
     }
 
-    public void enterUsername(String username) {
+    public LoginPage enterUsername(String username) {
         actions.type(usernameInput, username);
+        return this;
     }
 
-    public void enterPassword(String password) {
+    public LoginPage enterPassword(String password) {
         actions.type(passwordInput, password);
+        return this;
     }
 
     public LoginPage clickLogin() {
@@ -45,15 +46,21 @@ public class LoginPage extends BasePage {
         return this;
     }
 
-    public DashboardPage submitLoginAndGetDashboard() {
-        actions.click(loginButton);
-        return dashboardPageProvider.get();
+    public DashboardPage loginAndGetDashboard(String username, String password) {
+        enterUsername(username);
+        enterPassword(password);
+        return submitAndGetDashboard();
     }
 
     public LoginPage login(String username, String password) {
         enterUsername(username);
         enterPassword(password);
         return this;
+    }
+
+    private DashboardPage submitAndGetDashboard() {
+        actions.click(loginButton);
+        return dashboardPageProvider.get();
     }
 
     public String getErrorMessage() {

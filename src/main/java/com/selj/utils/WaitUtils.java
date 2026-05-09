@@ -1,6 +1,7 @@
 package com.selj.utils;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -10,16 +11,30 @@ import java.time.Duration;
 
 public class WaitUtils {
 
-    private static final long TIMEOUT = 10;
+    private static final long DEFAULT_TIMEOUT = 10L;
+
     private final WebDriver webDriver;
+    private final long timeout;
 
     @Inject
-    public WaitUtils(WebDriver webDriver) {
+    public WaitUtils(WebDriver webDriver, @Named("timeout") String timeout) {
         this.webDriver = webDriver;
+        this.timeout = parseTimeout(timeout);
+    }
+
+    private long parseTimeout(String timeoutStr) {
+        if (timeoutStr == null || timeoutStr.isBlank()) {
+            return DEFAULT_TIMEOUT;
+        }
+        try {
+            return Long.parseLong(timeoutStr.trim());
+        } catch (NumberFormatException e) {
+            return DEFAULT_TIMEOUT;
+        }
     }
 
     private WebDriverWait getWait() {
-        return new WebDriverWait(webDriver, Duration.ofSeconds(TIMEOUT));
+        return new WebDriverWait(webDriver, Duration.ofSeconds(timeout));
     }
 
     public WebElement waitForVisible(WebElement element) {

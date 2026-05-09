@@ -1,6 +1,9 @@
 package com.selj.utils;
 
 import com.google.inject.Inject;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 
 public class ElementActions {
@@ -13,16 +16,36 @@ public class ElementActions {
     }
 
     public void click(WebElement element) {
-        waitUtils.waitForClickable(element).click();
+        try {
+            WebElement clickableElement = waitUtils.waitForClickable(element);
+            clickableElement.click();
+        } catch (StaleElementReferenceException e) {
+            throw e;
+        } catch (TimeoutException e) {
+            throw e;
+        } catch (NoSuchElementException e) {
+            throw e;
+        }
     }
 
     public void type(WebElement element, String text) {
-        WebElement el = waitUtils.waitForVisible(element);
-        el.clear();
-        el.sendKeys(text);
+        try {
+            WebElement visibleElement = waitUtils.waitForVisible(element);
+            visibleElement.clear();
+            visibleElement.sendKeys(text);
+        } catch (StaleElementReferenceException e) {
+            throw e;
+        } catch (TimeoutException e) {
+            throw e;
+        }
     }
 
     public String getText(WebElement element) {
-        return waitUtils.waitForVisible(element).getText();
+        try {
+            WebElement visibleElement = waitUtils.waitForVisible(element);
+            return visibleElement.getText();
+        } catch (TimeoutException e) {
+            throw e;
+        }
     }
 }
