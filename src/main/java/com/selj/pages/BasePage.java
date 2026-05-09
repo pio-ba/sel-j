@@ -1,7 +1,6 @@
 package com.selj.pages;
 
 import com.google.inject.Inject;
-import com.selj.config.ConfigReader;
 import com.selj.utils.ElementActions;
 import com.selj.utils.WaitUtils;
 import org.openqa.selenium.WebDriver;
@@ -12,8 +11,6 @@ public class BasePage {
     protected WebDriver driver;
     protected ElementActions actions;
     protected WaitUtils wait;
-    @Inject
-    protected ConfigReader configReader;
 
     @Inject
     public BasePage(WebDriver driver, ElementActions actions, WaitUtils wait) {
@@ -22,6 +19,4 @@ public class BasePage {
         this.wait = wait;
         PageFactory.initElements(driver, this);
     }
-
-
 }
