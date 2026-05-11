@@ -28,12 +28,9 @@ public class BaseTest {
     @Inject
     protected Provider<DashboardPage> dashboardPageProvider;
 
-    @Inject
-    protected WebDriverFactory webDriverFactory;
-
     @BeforeMethod
     public void setUp() {
-        driverManager.initDriver();
+        driverManager.navigateToBaseUrl();
     }
 
     @AfterMethod(alwaysRun = true)

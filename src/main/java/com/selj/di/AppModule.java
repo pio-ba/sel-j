@@ -3,14 +3,12 @@ package com.selj.di;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-import com.selj.config.ConfigReader;
 import com.selj.config.DriverManager;
 import com.selj.pages.BasePage;
 import com.selj.pages.DashboardPage;
 import com.selj.pages.LoginPage;
 import com.selj.utils.ElementActions;
 import com.selj.utils.WaitUtils;
-import org.openqa.selenium.WebDriver;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +16,7 @@ import java.util.Properties;
 
 /**
  * Guice DI Module - centralizuje wszystko bindowanie.
- * ThreadLocal WebDriver zarządzany przez ThreadLocalWebDriverFactory.
+ * ThreadLocal WebDriver zarzadzany przez ThreadLocalWebDriverFactory.
  */
 public class AppModule extends AbstractModule {
 
@@ -53,23 +51,17 @@ public class AppModule extends AbstractModule {
         // 1. Bind properties as @Named
         bindProperties();
 
-        // 2. Bind ConfigReader (backward compatibility)
-        bind(ConfigReader.class).toInstance(new ConfigReader());
-
-        // 3. Bind WebDriverFactory as eager singleton - manages ThreadLocal
+        // 2. Bind WebDriverFactory as eager singleton - manages ThreadLocal
         bind(WebDriverFactory.class).to(ThreadLocalWebDriverFactory.class).asEagerSingleton();
 
-        // 4. Bind WebDriver to factory provider - uses ThreadLocal inside
-        bind(WebDriver.class).toProvider(WebDriverProviderImpl.class).in(Scopes.SINGLETON);
-
-        // 5. Bind DriverManager facade
+        // 3. Bind DriverManager facade
         bind(DriverManager.class).in(Scopes.SINGLETON);
 
-        // 6. Bind utility classes
+        // 4. Bind utility classes
         bind(WaitUtils.class).in(Scopes.SINGLETON);
         bind(ElementActions.class).in(Scopes.SINGLETON);
 
-        // 7. Bind page objects (not singletons - fresh state per request)
+        // 5. Bind page objects (not singletons - fresh state per request)
         bind(LoginPage.class);
         bind(DashboardPage.class);
         bind(BasePage.class);

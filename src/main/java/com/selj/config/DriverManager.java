@@ -21,9 +21,13 @@ public class DriverManager {
         return webDriverFactory.create();
     }
 
-    public void initDriver() {
+    public void navigateTo(String url) {
+        getDriver().get(url);
+    }
+
+    public void navigateToBaseUrl() {
         if (baseUrl != null && !baseUrl.isBlank()) {
-            getDriver().get(baseUrl);
+            navigateTo(baseUrl);
         }
     }
 
