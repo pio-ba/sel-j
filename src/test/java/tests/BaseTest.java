@@ -2,9 +2,8 @@ package tests;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.selj.config.DriverManager;
+import com.selj.driver.WebDriverFacade;
 import com.selj.di.AppModule;
-import com.selj.di.WebDriverFactory;
 import com.selj.pages.DashboardPage;
 import com.selj.pages.LoginPage;
 import io.qameta.allure.Attachment;
@@ -20,7 +19,7 @@ import org.testng.annotations.Guice;
 public class BaseTest {
 
     @Inject
-    protected DriverManager driverManager;
+    protected WebDriverFacade webDriverFacade;
 
     @Inject
     protected Provider<LoginPage> loginPageProvider;
@@ -28,9 +27,12 @@ public class BaseTest {
     @Inject
     protected Provider<DashboardPage> dashboardPageProvider;
 
+    @Inject
+    protected WebDriver webDriver;
+
     @BeforeMethod
     public void setUp() {
-        driverManager.navigateToBaseUrl();
+        webDriverFacade.navigateToBaseUrl();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -38,15 +40,14 @@ public class BaseTest {
         if (result.getStatus() == ITestResult.FAILURE) {
             takeScreenshot(result.getMethod().getMethodName());
         }
-        driverManager.quitDriver();
+        webDriverFacade.quitDriver();
     }
 
     @Attachment(value = "Screenshot on Failure", type = "image/png")
     public byte[] takeScreenshot(String testName) {
         try {
-            WebDriver driver = driverManager.getDriver();
-            if (driver != null) {
-                return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+            if (webDriver != null) {
+                return ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
             }
         } catch (Exception e) {
             System.err.println("Failed to take screenshot: " + e.getMessage());

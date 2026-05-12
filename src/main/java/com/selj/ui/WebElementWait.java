@@ -1,4 +1,4 @@
-package com.selj.utils;
+package com.selj.ui;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class WaitUtils {
+public class WebElementWait {
 
     private static final long DEFAULT_TIMEOUT = 10L;
 
@@ -17,7 +17,7 @@ public class WaitUtils {
     private final long timeout;
 
     @Inject
-    public WaitUtils(WebDriver webDriver, @Named("timeout") String timeout) {
+    public WebElementWait(WebDriver webDriver, @Named("timeout") String timeout) {
         this.webDriver = webDriver;
         this.timeout = parseTimeout(timeout);
     }

@@ -1,28 +1,30 @@
-package com.selj.config;
+package com.selj.driver;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.selj.di.WebDriverFactory;
 import org.openqa.selenium.WebDriver;
 
-public class DriverManager {
+public class WebDriverFacade {
 
+    private final WebDriver webDriver;
     private final WebDriverFactory webDriverFactory;
     private final String baseUrl;
 
     @Inject
-    public DriverManager(WebDriverFactory webDriverFactory,
-                         @Named("baseUrl") String baseUrl) {
+    public WebDriverFacade(WebDriver webDriver, WebDriverFactory webDriverFactory,
+                          @Named("baseUrl") String baseUrl) {
+        this.webDriver = webDriver;
         this.webDriverFactory = webDriverFactory;
         this.baseUrl = baseUrl;
     }
 
     public WebDriver getDriver() {
-        return webDriverFactory.create();
+        return webDriver;
     }
 
     public void navigateTo(String url) {
-        getDriver().get(url);
+        webDriver.get(url);
     }
 
     public void navigateToBaseUrl() {
@@ -32,6 +34,6 @@ public class DriverManager {
     }
 
     public void quitDriver() {
-        webDriverFactory.cleanup(getDriver());
+        webDriverFactory.cleanup(webDriver);
     }
 }

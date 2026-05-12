@@ -2,8 +2,8 @@ package com.selj.pages;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.selj.utils.ElementActions;
-import com.selj.utils.WaitUtils;
+import com.selj.ui.WebElementInteraction;
+import com.selj.ui.WebElementWait;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,7 +19,7 @@ public class DashboardPage extends BasePage {
     private final Provider<LoginPage> loginPageProvider;
 
     @Inject
-    public DashboardPage(WebDriver driver, ElementActions actions, WaitUtils wait,
+    public DashboardPage(WebDriver driver, WebElementInteraction actions, WebElementWait wait,
                          Provider<LoginPage> loginPageProvider) {
         super(driver, actions, wait);
         this.loginPageProvider = loginPageProvider;

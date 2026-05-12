@@ -29,8 +29,9 @@ public class LoginTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     public void invalidLoginTest(String username, String password, String expectedError) {
         LoginPage loginPage = loginPage();
-        loginPage.login(username, password);
-        loginPage.clickLogin();
+        loginPage.enterUsername(username);
+        loginPage.enterPassword(password);
+        loginPage.loginAndGetDashboard(username, password);
         String actualError = loginPage.getErrorMessage();
         Assert.assertEquals(actualError, expectedError, "Error message mismatch");
     }

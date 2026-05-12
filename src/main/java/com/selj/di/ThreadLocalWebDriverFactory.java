@@ -1,6 +1,7 @@
 package com.selj.di;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -15,7 +16,7 @@ import org.openqa.selenium.firefox.FirefoxOptions;
  * ThreadLocal-based WebDriver factory implementation.
  * Each thread gets its own driver instance - thread-safe for parallel tests.
  */
-public class ThreadLocalWebDriverFactory implements WebDriverFactory {
+public class ThreadLocalWebDriverFactory implements WebDriverFactory, Provider<WebDriver> {
 
     private static final String DEFAULT_BROWSER = "chrome";
 
@@ -36,6 +37,11 @@ public class ThreadLocalWebDriverFactory implements WebDriverFactory {
 
     @Override
     public WebDriver create() {
+        return driverHolder.get();
+    }
+
+    @Override
+    public WebDriver get() {
         return driverHolder.get();
     }
 
@@ -63,54 +69,47 @@ public class ThreadLocalWebDriverFactory implements WebDriverFactory {
 
     private ChromeDriver createChrome() {
         ChromeOptions options = new ChromeOptions();
-        applyCommonOptions(options);
+        applyHeadlessAndWindow(options);
+        options.addArguments("--disable-extensions");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
         return new ChromeDriver(options);
     }
 
     private FirefoxDriver createFirefox() {
         FirefoxOptions options = new FirefoxOptions();
-        applyCommonOptions(options);
-        return new FirefoxDriver(options);
-    }
-
-    private EdgeDriver createEdge() {
-        EdgeOptions options = new EdgeOptions();
-        applyCommonOptions(options);
-        return new EdgeDriver(options);
-    }
-
-    private void applyCommonOptions(ChromeOptions options) {
         boolean isHeadless = Boolean.parseBoolean(headless);
-
-        if (isHeadless) {
-            options.addArguments("--headless=new");
-        }
-        options.addArguments("--window-size=" + windowSize);
-        options.addArguments("--disable-extensions");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-    }
-
-    private void applyCommonOptions(FirefoxOptions options) {
-        boolean isHeadless = Boolean.parseBoolean(headless);
-
         if (isHeadless) {
             options.addArguments("--headless");
         }
         String[] dimensions = windowSize.split(",");
         options.addArguments("--width=" + dimensions[0]);
         options.addArguments("--height=" + dimensions[1]);
+        return new FirefoxDriver(options);
     }
 
-    private void applyCommonOptions(EdgeOptions options) {
-        boolean isHeadless = Boolean.parseBoolean(headless);
+    private EdgeDriver createEdge() {
+        EdgeOptions options = new EdgeOptions();
+        applyHeadlessAndWindow(options);
+        options.addArguments("--disable-extensions");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        return new EdgeDriver(options);
+    }
 
+    private void applyHeadlessAndWindow(ChromeOptions options) {
+        boolean isHeadless = Boolean.parseBoolean(headless);
         if (isHeadless) {
             options.addArguments("--headless=new");
         }
         options.addArguments("--window-size=" + windowSize);
-        options.addArguments("--disable-extensions");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
+    }
+
+    private void applyHeadlessAndWindow(EdgeOptions options) {
+        boolean isHeadless = Boolean.parseBoolean(headless);
+        if (isHeadless) {
+            options.addArguments("--headless=new");
+        }
+        options.addArguments("--window-size=" + windowSize);
     }
 }
