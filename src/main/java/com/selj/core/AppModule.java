@@ -1,14 +1,12 @@
-package com.selj.di;
+package com.selj.core;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-import com.selj.driver.WebDriverFacade;
 import com.selj.pages.DashboardPage;
 import com.selj.pages.LoginPage;
-import com.selj.ui.WebElementInteraction;
-import com.selj.ui.WebElementWait;
-import org.openqa.selenium.WebDriver;
+import com.selj.actions.WebElementInteraction;
+import com.selj.actions.WebElementWait;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +36,9 @@ public class AppModule extends AbstractModule {
         }
     }
 
+    /**
+     * Load default properties - used when config.properties is not found.
+     */
     private void loadDefaults() {
         properties.setProperty("browser", "chrome");
         properties.setProperty("headless", "true");
@@ -46,27 +47,30 @@ public class AppModule extends AbstractModule {
         properties.setProperty("timeout", "10");
     }
 
+    /**
+     * Configure all dependency bindings.
+     * Binds properties, WebDriver factory, utilities, and page objects.
+     */
     @Override
     protected void configure() {
         // 1. Bind properties as @Named
         bindProperties();
 
         // 2. Bind WebDriverFactory as eager singleton - manages ThreadLocal
-        bind(WebDriverFactory.class).to(ThreadLocalWebDriverFactory.class).asEagerSingleton();
+        bind(WebDriverFactory.class)
+                .to(ThreadLocalWebDriverFactory.class)
+                .asEagerSingleton();
 
         // 3. Bind WebDriver directly - ThreadLocalWebDriverFactory supplies it
         bind(org.openqa.selenium.WebDriver.class)
                 .toProvider(ThreadLocalWebDriverFactory.class)
                 .in(Scopes.SINGLETON);
 
-        // 4. Bind WebDriverFacade
-        bind(WebDriverFacade.class).in(Scopes.SINGLETON);
-
-        // 5. Bind utility classes
+        // 4. Bind utility classes
         bind(WebElementWait.class).in(Scopes.SINGLETON);
         bind(WebElementInteraction.class).in(Scopes.SINGLETON);
 
-        // 6. Bind page objects (not singletons - fresh state per request)
+        // 5. Bind page objects (not singletons - fresh state per request)
         bind(LoginPage.class);
         bind(DashboardPage.class);
     }

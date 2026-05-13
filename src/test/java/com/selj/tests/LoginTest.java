@@ -1,4 +1,4 @@
-package tests;
+package com.selj.tests;
 
 import com.selj.pages.DashboardPage;
 import com.selj.pages.LoginPage;
@@ -6,7 +6,7 @@ import io.qameta.allure.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class DashboardTest extends BaseTest {
+public class LoginTest extends BaseTest {
 
     @Test(dataProvider = "validLogin", dataProviderClass = TestData.class,
             description = "Poprawne logowanie użytkownika")
@@ -31,7 +31,7 @@ public class DashboardTest extends BaseTest {
         LoginPage loginPage = loginPage();
         loginPage.enterUsername(username);
         loginPage.enterPassword(password);
-        loginPage.loginAndGetDashboard(username, password);
+        loginPage.clickLogin();  // Click login button - stay on LoginPage
         String actualError = loginPage.getErrorMessage();
         Assert.assertEquals(actualError, expectedError, "Error message mismatch");
     }

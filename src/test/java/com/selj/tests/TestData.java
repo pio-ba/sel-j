@@ -1,4 +1,4 @@
-package tests;
+package com.selj.tests;
 
 import org.testng.annotations.DataProvider;
 
@@ -24,15 +24,6 @@ public class TestData {
                 {"admin", "", "Invalid credentials"},
                 {"", "admin123", "Invalid credentials"},
                 {"<script>alert('xss')</script>", "test", "Invalid credentials"}
-        };
-    }
-
-    @DataProvider(name = "passwordReset")
-    public static Object[][] passwordResetData() {
-        return new Object[][]{
-                {"admin@example.com", true},
-                {"user@invalid.com", false},
-                {"", false}
         };
     }
 }

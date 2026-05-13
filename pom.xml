@@ -36,12 +36,6 @@
             <artifactId>guice</artifactId>
             <version>7.0.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>17.0.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -54,6 +48,9 @@
                 <suiteXmlFiles>
                     <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                 </suiteXmlFiles>
+                <argLine>
+                    -javaagent:"${settings.localRepository}/io/qameta/allure/allure-agent/2.25.0/allure-agent-2.25.0.jar"
+                </argLine>
             </configuration>
         </plugin>
             <plugin>
