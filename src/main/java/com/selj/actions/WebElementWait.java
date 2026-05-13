@@ -1,4 +1,4 @@
-package com.selj.ui;
+package com.selj.actions;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -9,6 +9,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+/**
+ * Explicit waits for WebDriver elements.
+ * Configurable timeout per test environment.
+ */
 public class WebElementWait {
 
     private static final long DEFAULT_TIMEOUT = 10L;
@@ -37,19 +41,17 @@ public class WebElementWait {
         return new WebDriverWait(webDriver, Duration.ofSeconds(timeout));
     }
 
+    /**
+     * Wait for element to become visible.
+     */
     public WebElement waitForVisible(WebElement element) {
         return getWait().until(ExpectedConditions.visibilityOf(element));
     }
 
+    /**
+     * Wait for element to become clickable.
+     */
     public WebElement waitForClickable(WebElement element) {
         return getWait().until(ExpectedConditions.elementToBeClickable(element));
-    }
-
-    public void waitForUrlContains(String fragment) {
-        getWait().until(ExpectedConditions.urlContains(fragment));
-    }
-
-    public void waitForTitle(String title) {
-        getWait().until(ExpectedConditions.titleIs(title));
     }
 }

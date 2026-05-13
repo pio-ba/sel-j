@@ -1,4 +1,4 @@
-package com.selj.di;
+package com.selj.core;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -40,11 +40,13 @@ public class ThreadLocalWebDriverFactory implements WebDriverFactory, Provider<W
         return driverHolder.get();
     }
 
+    /**
+     * Provider interface - delegates to create()
+     */
     @Override
     public WebDriver get() {
-        return driverHolder.get();
+        return create();
     }
-
     @Override
     public void cleanup(WebDriver driver) {
         try {
@@ -52,7 +54,7 @@ public class ThreadLocalWebDriverFactory implements WebDriverFactory, Provider<W
                 driver.quit();
             }
         } catch (WebDriverException e) {
-            System.err.println("Warning: Error quitting driver: " + e.getMessage());
+            // Silently handle driver cleanup errors - driver may already be closed
         } finally {
             driverHolder.remove();
         }
