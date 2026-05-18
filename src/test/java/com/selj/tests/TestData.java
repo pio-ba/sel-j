@@ -11,7 +11,7 @@ public class TestData {
     @DataProvider(name = "validLogin")
     public static Object[][] validLoginData() {
         return new Object[][]{
-                {"admin", "admin123", "Dashboard"}
+                {"test@qabrains.com", "practice@qabrains.com", "student@qabrains.com"}
         };
     }
 

@@ -48,9 +48,6 @@
                 <suiteXmlFiles>
                     <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
                 </suiteXmlFiles>
-                <argLine>
-                    -javaagent:"${settings.localRepository}/io/qameta/allure/allure-agent/2.25.0/allure-agent-2.25.0.jar"
-                </argLine>
             </configuration>
         </plugin>
             <plugin>
