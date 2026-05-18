@@ -13,7 +13,7 @@ import org.openqa.selenium.support.FindBy;
  */
 public class LoginPage extends BasePage {
 
-    @FindBy(id = "username")
+    @FindBy(id = "email")
     private WebElement usernameInput;
 
     @FindBy(id = "password")
