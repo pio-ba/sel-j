@@ -3,7 +3,7 @@ package com.selj.pages;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.selj.actions.WebElementInteraction;
-import org.openqa.selenium.WebDriver;
+import com.selj.core.WebDriverFactory;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -22,9 +22,9 @@ public class DashboardPage extends BasePage {
     private final Provider<LoginPage> loginPageProvider;
 
     @Inject
-    public DashboardPage(WebDriver driver, WebElementInteraction actions,
+    public DashboardPage(WebDriverFactory webDriverFactory, WebElementInteraction actions,
                          Provider<LoginPage> loginPageProvider) {
-        super(driver, actions);
+        super(webDriverFactory, actions);
         this.loginPageProvider = loginPageProvider;
     }
 

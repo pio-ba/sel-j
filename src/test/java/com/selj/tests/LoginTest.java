@@ -14,10 +14,11 @@ public class LoginTest extends BaseTest {
     @Feature("Login")
     @Story("Valid login")
     @Severity(SeverityLevel.NORMAL)
-    public void validLoginTest(String username, String password, String expectedTitle) {
+    public void validLoginTest(String username, String password) {
         LoginPage loginPage = loginPage();
-        loginPage.loginAndGetDashboard(username, password);
-       // Assert.assertEquals(actualTitle, expectedTitle, "Dashboard title mismatch");
+        DashboardPage dashboard = loginPage.loginAndGetDashboard(username, password);
+        String actualTitle = dashboard.getHeaderTitle();
+        Assert.assertEquals(actualTitle, "Dashboard", "Dashboard title mismatch");
     }
 
     @Test(dataProvider = "invalidLogin", dataProviderClass = TestData.class,
@@ -26,12 +27,12 @@ public class LoginTest extends BaseTest {
     @Feature("Login")
     @Story("Invalid login")
     @Severity(SeverityLevel.NORMAL)
-    public void invalidLoginTest(String username, String password, String expectedError) {
+    public void invalidLoginTest(String username, String password) {
         LoginPage loginPage = loginPage();
         loginPage.enterUsername(username);
         loginPage.enterPassword(password);
         loginPage.clickLogin();
         String actualError = loginPage.getErrorMessage();
-        Assert.assertEquals(actualError, expectedError, "Error message mismatch");
+        Assert.assertEquals(actualError, "Invalid credentials", "Error message mismatch");
     }
 }

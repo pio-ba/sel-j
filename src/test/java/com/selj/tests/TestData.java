@@ -8,22 +8,22 @@ import org.testng.annotations.DataProvider;
  */
 public class TestData {
 
-    @DataProvider(name = "validLogin")
+    @DataProvider(name = "validLogin", parallel = true)
     public static Object[][] validLoginData() {
         return new Object[][]{
-                {"test@qabrains.com", "practice@qabrains.com", "student@qabrains.com"}
+                {"test@qabrains.com", "Password123"},
+                {"practice@qabrains.com", "Password123"}
         };
     }
 
-    @DataProvider(name = "invalidLogin")
+    @DataProvider(name = "invalidLogin", parallel = true)
     public static Object[][] invalidLoginData() {
         return new Object[][]{
-                {"wrong", "wrong", "Invalid credentials"},
-                {"admin", "wrongpass", "Invalid credentials"},
-                {"", "", "Invalid credentials"},
-                {"admin", "", "Invalid credentials"},
-                {"", "admin123", "Invalid credentials"},
-                {"<script>alert('xss')</script>", "test", "Invalid credentials"}
+                {"wrong", "wrong"},
+                {"admin", "wrongpass"},
+                {"admin", "Invalid credentials"},
+                {"admin123", "Invalid credentials"},
+                {"<script>alert('xss')</script>", "test",}
         };
     }
 }

@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.selj.core.WebDriverFactory;
-import com.selj.core.AppModule;
 import com.selj.pages.LoginPage;
 import io.qameta.allure.Attachment;
 import org.openqa.selenium.OutputType;
@@ -15,7 +14,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Guice;
 
-@Guice(modules = AppModule.class)
+@Guice(modules = com.selj.core.AppModule.class)
 public class BaseTest {
 
     @Inject
@@ -28,14 +27,15 @@ public class BaseTest {
     @Inject
     protected Provider<LoginPage> loginPageProvider;
 
-    @Inject
-    protected WebDriver webDriver;
-
     /**
-     * Setup test - navigate to base URL before each test.
+     * Setup test - initialize WebDriver explicitly, then navigate to base URL.
+     * Prevents multiple browser instances by eagerly creating driver before test.
      */
     @BeforeMethod
     public void setUp() {
+        // Explicitly create driver BEFORE test - prevents lazy initialization issues
+        webDriverFactory.create();
+        // Now navigate to base URL
         webDriverFactory.navigateTo(baseUrl);
     }
 
@@ -56,8 +56,9 @@ public class BaseTest {
     @Attachment(value = "Screenshot on Failure", type = "image/png")
     public byte[] takeScreenshot(String testName) {
         try {
-            if (webDriver != null) {
-                return ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.BYTES);
+            WebDriver driver = webDriverFactory.create();
+            if (driver != null) {
+                return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             }
         } catch (Exception e) {
             // Failed to capture screenshot - continue with test
