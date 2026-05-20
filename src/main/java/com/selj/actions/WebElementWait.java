@@ -2,6 +2,7 @@ package com.selj.actions;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.selj.core.WebDriverFactory;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,12 +18,12 @@ public class WebElementWait {
 
     private static final long DEFAULT_TIMEOUT = 10L;
 
-    private final WebDriver webDriver;
+    private final WebDriverFactory webDriverFactory;
     private final long timeout;
 
     @Inject
-    public WebElementWait(WebDriver webDriver, @Named("timeout") String timeout) {
-        this.webDriver = webDriver;
+    public WebElementWait(WebDriverFactory webDriverFactory, @Named("timeout") String timeout) {
+        this.webDriverFactory = webDriverFactory;
         this.timeout = parseTimeout(timeout);
     }
 
@@ -38,7 +39,8 @@ public class WebElementWait {
     }
 
     private WebDriverWait getWait() {
-        return new WebDriverWait(webDriver, Duration.ofSeconds(timeout));
+        WebDriver driver = webDriverFactory.create();
+        return new WebDriverWait(driver, Duration.ofSeconds(timeout));
     }
 
     /**

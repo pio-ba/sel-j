@@ -3,7 +3,7 @@ package com.selj.pages;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.selj.actions.WebElementInteraction;
-import org.openqa.selenium.WebDriver;
+import com.selj.core.WebDriverFactory;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -19,7 +19,7 @@ public class LoginPage extends BasePage {
     @FindBy(id = "password")
     private WebElement passwordInput;
 
-    @FindBy(id = "loginBtn")
+    @FindBy(css = ".btn-submit")
     private WebElement loginButton;
 
     @FindBy(css = ".error-message")
@@ -28,9 +28,9 @@ public class LoginPage extends BasePage {
     private final Provider<DashboardPage> dashboardPageProvider;
 
     @Inject
-    public LoginPage(WebDriver driver, WebElementInteraction actions,
+    public LoginPage(WebDriverFactory webDriverFactory, WebElementInteraction actions,
                      Provider<DashboardPage> dashboardPageProvider) {
-        super(driver, actions);
+        super(webDriverFactory, actions);
         this.dashboardPageProvider = dashboardPageProvider;
     }
 
