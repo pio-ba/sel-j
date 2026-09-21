@@ -33,9 +33,7 @@ public class BaseTest {
      */
     @BeforeMethod
     public void setUp() {
-        // Explicitly create driver BEFORE test - prevents lazy initialization issues
         webDriverFactory.create();
-        // Now navigate to base URL
         webDriverFactory.navigateTo(baseUrl);
     }
 
@@ -54,16 +52,15 @@ public class BaseTest {
      * Take screenshot on test failure - attached to Allure report.
      */
     @Attachment(value = "Screenshot on Failure", type = "image/png")
-    public byte[] takeScreenshot(String testName) {
+    public void takeScreenshot(String testName) {
         try {
             WebDriver driver = webDriverFactory.create();
             if (driver != null) {
-                return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+                ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             }
-        } catch (Exception e) {
+        } catch (Exception _) {
             // Failed to capture screenshot - continue with test
         }
-        return new byte[0];
     }
 
     /**
