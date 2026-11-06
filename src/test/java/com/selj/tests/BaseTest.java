@@ -10,9 +10,7 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Guice;
+import org.testng.annotations.*;
 
 @Guice(modules = com.selj.core.AppModule.class)
 public class BaseTest {
@@ -61,6 +59,15 @@ public class BaseTest {
         } catch (Exception _) {
             // Failed to capture screenshot - continue with test
         }
+    }
+
+    /**
+     * Returns the URL of the current browser page.
+     *
+     * @return the current page URL
+     */
+    protected String getCurrentUrl() {
+        return webDriverFactory.create().getCurrentUrl();
     }
 
     /**
