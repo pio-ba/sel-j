@@ -3,8 +3,9 @@ package com.selj.tests;
 import com.selj.pages.DashboardPage;
 import com.selj.pages.LoginPage;
 import io.qameta.allure.*;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
 
 public class LoginTest extends BaseTest {
 
@@ -18,7 +19,7 @@ public class LoginTest extends BaseTest {
         LoginPage loginPage = loginPage();
         DashboardPage dashboard = loginPage.loginAndGetDashboard(username, password);
         String actualTitle = dashboard.getHeaderTitle();
-        Assert.assertEquals(actualTitle, "Dashboard", "Dashboard title mismatch");
+        assertEquals(actualTitle, "Dashboard", "Dashboard title mismatch");
     }
 
     @Test(dataProvider = "invalidLogin", dataProviderClass = TestData.class,
@@ -33,6 +34,6 @@ public class LoginTest extends BaseTest {
         loginPage.enterPassword(password);
         loginPage.clickLogin();
         String actualError = loginPage.getErrorMessage();
-        Assert.assertEquals(actualError, "Invalid credentials", "Error message mismatch");
+        assertEquals(actualError, "Invalid credentials", "Error message mismatch");
     }
 }
