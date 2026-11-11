@@ -19,11 +19,11 @@ public class TestData {
     @DataProvider(name = "invalidLogin", parallel = true)
     public static Object[][] invalidLoginData() {
         return new Object[][]{
-                {"wrong", "wrong"},
-                {"admin", "wrongpass"},
-                {"admin", "Invalid credentials"},
-                {"admin123", "Invalid credentials"},
-                {"<script>alert('xss')</script>", "test",}
+                {"wrong@wrong.com", "wrong1111"},
+                {"adminmail.com", "wrongpass123"},
+                {"admin@mail.com", "Invalid credentials"},
+                {"admin123@mail.com", "Invalid credentials"},
+                {"<script>alert('xss')</script>", "test123123!",}
         };
     }
 }

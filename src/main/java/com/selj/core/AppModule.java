@@ -3,7 +3,7 @@ package com.selj.core;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
-import com.selj.pages.DashboardPage;
+import com.selj.pages.ProductsPage;
 import com.selj.pages.LoginPage;
 import com.selj.actions.WebElementInteraction;
 import com.selj.actions.WebElementWait;
@@ -71,7 +71,7 @@ public class AppModule extends AbstractModule {
 
         // 5. Bind page objects (not singletons - fresh state per request)
         bind(LoginPage.class);
-        bind(DashboardPage.class);
+        bind(ProductsPage.class);
     }
 
     private void bindProperties() {

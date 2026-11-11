@@ -25,13 +25,13 @@ public class LoginPage extends BasePage {
     @FindBy(css = ".error-message")
     private WebElement errorMessage;
 
-    private final Provider<DashboardPage> dashboardPageProvider;
+    private final Provider<ProductsPage> productsPageProvider;
 
     @Inject
     public LoginPage(WebDriverFactory webDriverFactory, WebElementInteraction actions,
-                     Provider<DashboardPage> dashboardPageProvider) {
+                     Provider<ProductsPage> productsPageProvider) {
         super(webDriverFactory, actions);
-        this.dashboardPageProvider = dashboardPageProvider;
+        this.productsPageProvider = productsPageProvider;
     }
 
     /**
@@ -59,13 +59,13 @@ public class LoginPage extends BasePage {
     }
 
     /**
-     * Perform login and navigate to Dashboard.
+     * Perform login and navigate to Products page.
      */
-    public DashboardPage loginAndGetDashboard(String username, String password) {
+    public ProductsPage loginAndGetDashboard(String username, String password) {
         enterUsername(username);
         enterPassword(password);
         clickLogin();
-        return dashboardPageProvider.get();
+        return productsPageProvider.get();
     }
 
     /**

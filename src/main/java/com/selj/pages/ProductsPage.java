@@ -8,13 +8,13 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 /**
- * Page Object for Dashboard page.
- * Provides methods for dashboard interactions.
+ * Page Object for Products page.
+ * Provides methods for products interactions.
  */
-public class DashboardPage extends BasePage {
+public class ProductsPage extends BasePage {
 
-    @FindBy(css = "h1.page-title")
-    private WebElement headerTitle;
+    @FindBy(id = "product-sort")
+    private WebElement pageTitle;
 
     @FindBy(id = "logoutBtn")
     private WebElement logoutButton;
@@ -22,17 +22,17 @@ public class DashboardPage extends BasePage {
     private final Provider<LoginPage> loginPageProvider;
 
     @Inject
-    public DashboardPage(WebDriverFactory webDriverFactory, WebElementInteraction actions,
-                         Provider<LoginPage> loginPageProvider) {
+    public ProductsPage(WebDriverFactory webDriverFactory, WebElementInteraction actions,
+                        Provider<LoginPage> loginPageProvider) {
         super(webDriverFactory, actions);
         this.loginPageProvider = loginPageProvider;
     }
 
     /**
-     * Get dashboard header title text.
+     * Get page title text.
      */
-    public String getHeaderTitle() {
-        return actions.getText(headerTitle);
+    public String getPageTitle() {
+        return actions.getText(pageTitle);
     }
 
     /**
