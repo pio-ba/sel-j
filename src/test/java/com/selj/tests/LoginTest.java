@@ -1,15 +1,16 @@
 package com.selj.tests;
 
-import com.selj.pages.DashboardPage;
+import com.selj.pages.ProductsPage;
 import com.selj.pages.LoginPage;
 import io.qameta.allure.*;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class LoginTest extends BaseTest {
 
-    private static final String DASHBOARD_TITLE = "Dashboard";
+    private static final String PRODUCTS_PAGE_TITLE = "Products";
     private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
 
     @Test(dataProvider = "validLogin", dataProviderClass = TestData.class,
@@ -20,9 +21,10 @@ public class LoginTest extends BaseTest {
     @Severity(SeverityLevel.NORMAL)
     public void validLoginTest(String username, String password) {
         LoginPage loginPage = loginPage();
-        DashboardPage dashboard = loginPage.loginAndGetDashboard(username, password);
+        ProductsPage dashboard = loginPage.loginAndGetDashboard(username, password);
 
-        assertEquals(dashboard.getHeaderTitle(), DASHBOARD_TITLE, "Dashboard title mismatch");
+        assertTrue(dashboard.getPageTitle().contains(PRODUCTS_PAGE_TITLE),
+                "Page title should contain " + PRODUCTS_PAGE_TITLE);
     }
 
     @Test(dataProvider = "invalidLogin", dataProviderClass = TestData.class,
