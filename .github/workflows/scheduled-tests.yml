@@ -13,6 +13,11 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  browser: chrome
+  headless: 'true'
+  windowSize: 1920,1080
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,6 +32,10 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
+
+      - name: Print browser config
+        run: |
+          echo "Browser config: browser=${browser} headless=${headless} windowSize=${windowSize}"
 
       - name: Download previous Allure history
         continue-on-error: true
@@ -44,7 +53,7 @@ jobs:
           fi
 
       - name: Run Maven tests
-        run: mvn -B test
+        run: mvn -B test -Dbrowser="$browser" -Dheadless="$headless" -DwindowSize="$windowSize"
 
       - name: Generate Allure report
         run: mvn -B allure:report
