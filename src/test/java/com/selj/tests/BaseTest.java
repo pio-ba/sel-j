@@ -10,10 +10,12 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestResult;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Guice;
 
 @Guice(modules = com.selj.core.AppModule.class)
-public class BaseTest {
+public abstract class BaseTest {
 
     @Inject
     protected WebDriverFactory webDriverFactory;
@@ -25,13 +27,16 @@ public class BaseTest {
     @Inject
     protected Provider<LoginPage> loginPageProvider;
 
+    protected WebDriver driver() {
+        return webDriverFactory.create();
+    }
+
     /**
      * Setup test - initialize WebDriver explicitly, then navigate to base URL.
      * Prevents multiple browser instances by eagerly creating driver before test.
      */
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void setUp() {
-        webDriverFactory.create();
         webDriverFactory.navigateTo(baseUrl);
     }
 
@@ -40,25 +45,29 @@ public class BaseTest {
      */
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
-        if (result.getStatus() == ITestResult.FAILURE) {
-            takeScreenshot(result.getMethod().getMethodName());
+        try {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                takeScreenshot(result.getMethod().getMethodName());
+            }
+        } finally {
+            webDriverFactory.quit();
         }
-        webDriverFactory.quit();
     }
 
     /**
      * Take screenshot on test failure - attached to Allure report.
      */
-    @Attachment(value = "Screenshot on Failure", type = "image/png")
-    public void takeScreenshot(String testName) {
+    @Attachment(value = "Screenshot on failure", type = "image/png")
+    public byte[] takeScreenshot(String testName) {
         try {
-            WebDriver driver = webDriverFactory.create();
+            WebDriver driver = driver();
             if (driver != null) {
-                ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+                return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             }
         } catch (Exception _) {
-            // Failed to capture screenshot - continue with test
+            // screenshot failure should never break the test suite
         }
+        return new byte[0];
     }
 
     /**
@@ -67,7 +76,7 @@ public class BaseTest {
      * @return the current page URL
      */
     protected String getCurrentUrl() {
-        return webDriverFactory.create().getCurrentUrl();
+        return driver().getCurrentUrl();
     }
 
     /**
