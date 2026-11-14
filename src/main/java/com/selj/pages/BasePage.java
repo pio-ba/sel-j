@@ -10,9 +10,9 @@ import org.openqa.selenium.support.PageFactory;
  * Base class for all Page Objects.
  * Provides access to element interaction utilities.
  */
-public class BasePage {
+public abstract class BasePage {
 
-    protected WebElementInteraction actions;
+    protected final WebElementInteraction actions;
 
     @Inject
     public BasePage(WebDriverFactory webDriverFactory, WebElementInteraction actions) {

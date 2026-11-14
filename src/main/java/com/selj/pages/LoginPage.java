@@ -22,7 +22,7 @@ public class LoginPage extends BasePage {
     @FindBy(css = ".btn-submit")
     private WebElement loginButton;
 
-    @FindBy(css = ".error-message")
+    @FindBy(css = "li[data-sonner-toast][data-type='error']")
     private WebElement errorMessage;
 
     private final Provider<ProductsPage> productsPageProvider;

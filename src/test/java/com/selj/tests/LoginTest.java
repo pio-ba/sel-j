@@ -5,13 +5,12 @@ import com.selj.pages.LoginPage;
 import io.qameta.allure.*;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class LoginTest extends BaseTest {
 
     private static final String PRODUCTS_PAGE_TITLE = "Products";
-    private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
+    private static final String INVALID_CREDENTIALS_MESSAGE = "Neither email nor password matched";
 
     @Test(dataProvider = "validLogin", dataProviderClass = TestData.class,
             description = "Valid login attempt with correct credentials")
@@ -23,8 +22,9 @@ public class LoginTest extends BaseTest {
         LoginPage loginPage = loginPage();
         ProductsPage dashboard = loginPage.loginAndGetDashboard(username, password);
 
-        assertTrue(dashboard.getPageTitle().contains(PRODUCTS_PAGE_TITLE),
-                "Page title should contain " + PRODUCTS_PAGE_TITLE);
+        assertThat(dashboard.getPageTitle())
+                .as("Page title should contain %s", PRODUCTS_PAGE_TITLE)
+                .contains(PRODUCTS_PAGE_TITLE);
     }
 
     @Test(dataProvider = "invalidLogin", dataProviderClass = TestData.class,
@@ -36,8 +36,9 @@ public class LoginTest extends BaseTest {
     public void invalidLoginTest(String username, String password) {
         LoginPage loginPage = submitLogin(username, password);
 
-        assertEquals(loginPage.getErrorMessage(), INVALID_CREDENTIALS_MESSAGE,
-                "Error message mismatch");
+        assertThat(loginPage.getErrorMessage())
+                .as("Error message mismatch")
+                .contains(INVALID_CREDENTIALS_MESSAGE);
     }
 
     @Test(dataProvider = "invalidLogin", dataProviderClass = TestData.class,
@@ -49,8 +50,9 @@ public class LoginTest extends BaseTest {
     public void invalidLoginDoesNotNavigateAway(String username, String password) {
         submitLogin(username, password);
 
-        assertEquals(baseUrl, getCurrentUrl(),
-                "Invalid login should keep the user on the login page");
+        assertThat(getCurrentUrl())
+                .as("Invalid login should keep the user on the login page")
+                .isEqualTo(baseUrl);
     }
 
     private LoginPage submitLogin(String username, String password) {
