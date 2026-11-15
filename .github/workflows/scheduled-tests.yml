@@ -6,7 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 9 * * 0'
+    - cron: '30 16 * * 0'
 
 permissions:
   contents: read
@@ -30,10 +30,13 @@ jobs:
 
       - name: Download previous Allure history
         continue-on-error: true
-        uses: actions/download-artifact@v4
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: scheduled-tests.yml
+          branch: main
           name: allure-results-history
           path: allure-history
+          if_no_artifact_found: warn
 
       - name: Restore previous Allure data
         shell: bash
@@ -78,7 +81,11 @@ jobs:
 
   deploy-pages:
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: always() && (
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+      )
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -110,4 +117,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
