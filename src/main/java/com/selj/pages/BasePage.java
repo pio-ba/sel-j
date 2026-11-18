@@ -13,9 +13,11 @@ import org.openqa.selenium.support.PageFactory;
 public abstract class BasePage {
 
     protected final WebElementInteraction actions;
+    protected final WebDriverFactory webDriverFactory;
 
     @Inject
-    public BasePage(WebDriverFactory webDriverFactory, WebElementInteraction actions) {
+    protected BasePage(WebDriverFactory webDriverFactory, WebElementInteraction actions) {
+        this.webDriverFactory = webDriverFactory;
         this.actions = actions;
         WebDriver driver = webDriverFactory.create();
         PageFactory.initElements(driver, this);
