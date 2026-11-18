@@ -8,7 +8,7 @@ import org.testng.annotations.DataProvider;
  */
 public class TestData {
 
-    @DataProvider(name = "validLogin", parallel = true)
+    @DataProvider(name = "validLogin", parallel = false)
     public static Object[][] validLoginData() {
         return new Object[][]{
                 {"test@qabrains.com", "Password123"},
@@ -16,13 +16,20 @@ public class TestData {
         };
     }
 
-    @DataProvider(name = "invalidLogin", parallel = true)
+    @DataProvider(name = "invalidLogin", parallel = false)
     public static Object[][] invalidLoginData() {
         return new Object[][]{
                 {"wrong@wrong.com", "wrong1111"},
                 {"admin@mail.com", "wrongpass123"},
                 {"admin@mail.com", "invalidpass111"},
                 {"admin123@mail.com", "invalidpass123!"},
+        };
+    }
+
+    @DataProvider(name = "productsLogin", parallel = false)
+    public static Object[][] productsLoginData() {
+        return new Object[][]{
+                {"test@qabrains.com", "Password123"}
         };
     }
 }
