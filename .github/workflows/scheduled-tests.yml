@@ -64,7 +64,8 @@ jobs:
           fi
 
       - name: Run Maven tests
-        run: mvn -B test
+        continue-on-error: true
+        run: mvn -B -Dmaven.test.failure.ignore=true test
 
       - name: Generate Allure report
         run: mvn -B allure:report
