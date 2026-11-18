@@ -6,12 +6,17 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: '0 21 * * 6'
+    - cron: '00 20 * * *'
 
 permissions:
+  actions: read
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: allure-history
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -30,17 +35,32 @@ jobs:
 
       - name: Download previous Allure history
         continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results-history
-          path: allure-history
-
-      - name: Restore previous Allure data
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          mkdir -p target/allure-results
-          if [ -d allure-history ]; then
-            cp -R allure-history/. target/allure-results/
+          mkdir -p target/allure-results/history
+          mkdir -p history-download
+
+          ARTIFACT_ID=$(
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${{ github.repository }}/actions/artifacts" \
+              --jq '.artifacts
+                | map(select(.name == "allure-results-history" and .expired == false))
+                | sort_by(.created_at)
+                | reverse
+                | .[0].id // empty'
+          )
+
+          if [ -n "$ARTIFACT_ID" ]; then
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID/zip" \
+              > history-download/history.zip
+
+            unzip -o history-download/history.zip -d history-download
+            cp -R history-download/. target/allure-results/history/
           fi
 
       - name: Run Maven tests
@@ -48,6 +68,15 @@ jobs:
 
       - name: Generate Allure report
         run: mvn -B allure:report
+
+      - name: Upload Allure history for next runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-history
+          path: target/site/allure-maven-plugin/history
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Upload raw Allure results
         if: always()
@@ -57,15 +86,6 @@ jobs:
           path: target/allure-results
           if-no-files-found: warn
           retention-days: 30
-
-      - name: Upload Allure history for next runs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results-history
-          path: target/allure-results
-          if-no-files-found: warn
-          retention-days: 90
 
       - name: Upload HTML Allure report
         if: always()
@@ -78,7 +98,12 @@ jobs:
 
   deploy-pages:
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      always() && (
+        github.event_name == 'schedule' ||
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      )
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -95,6 +120,7 @@ jobs:
           path: public
 
       - name: Move report to Pages root
+        shell: bash
         run: |
           if [ -d public/allure-maven-plugin ]; then
             cp -R public/allure-maven-plugin/. public/
@@ -110,4 +136,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
