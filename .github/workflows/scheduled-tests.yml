@@ -15,7 +15,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: allure-history
+  group: allure-history-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -33,45 +33,24 @@ jobs:
           java-version: '25'
           cache: maven
 
-      - name: Cache Allure runtime
-        uses: actions/cache@v4
+      - name: Restore Allure 3 report history
+        id: restore-allure-history
+        uses: actions/cache/restore@v4
         with:
-          path: ~/.m2
-          key: allure-${{ hashFiles('pom.xml') }}
+          path: .allure/history/report/history.jsonl
+          key: allure-history-${{ github.ref_name }}-${{ github.run_number }}
+          restore-keys: |
+            allure-history-${{ github.ref_name }}-
 
-      - name: Download previous report history
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Verify restored Allure history
         shell: bash
         run: |
           mkdir -p .allure/history/report
-          mkdir -p history-download
-
-          ARTIFACT_ID=$(
-            gh api \
-              -H "Accept: application/vnd.github+json" \
-              "/repos/${{ github.repository }}/actions/artifacts" \
-              --jq '.artifacts
-                | map(select(.name == "allure-history" and .expired == false))
-                | sort_by(.created_at)
-                | reverse
-                | .[0].id // empty'
-          )
-
-          if [ -n "$ARTIFACT_ID" ]; then
-            gh api \
-              -H "Accept: application/vnd.github+json" \
-              "/repos/${{ github.repository }}/actions/artifacts/$ARTIFACT_ID/zip" \
-              > history-download/history.zip
-
-            unzip -o history-download/history.zip -d history-download
-
-            HISTORY_FILE=$(find history-download -name history.jsonl -type f -print -quit)
-            if [ -n "$HISTORY_FILE" ]; then
-              cp "$HISTORY_FILE" .allure/history/report/history.jsonl
-              echo "Restored Allure history: $HISTORY_FILE"
-            fi
+          if [ -f .allure/history/report/history.jsonl ]; then
+            echo "Restored Allure history:"
+            wc -l .allure/history/report/history.jsonl
+          else
+            echo "No previous Allure history found; this run creates the first history entry."
           fi
 
       - name: Run Maven tests
@@ -79,9 +58,29 @@ jobs:
         run: mvn -B -Dmaven.test.failure.ignore=true test
 
       - name: Generate Allure report
-        run: mvn -B allure:report
+        run: mvn -B -Dallure.history.enabled=true allure:report
 
-      - name: Upload Allure history for next runs
+      - name: Verify generated Allure history
+        if: always()
+        shell: bash
+        run: |
+          HISTORY_FILE=.allure/history/report/history.jsonl
+          if [ -f "$HISTORY_FILE" ]; then
+            echo "Allure 3 history was generated: $HISTORY_FILE"
+            wc -l "$HISTORY_FILE"
+          else
+            echo "Allure 3 history file is missing: $HISTORY_FILE"
+            exit 1
+          fi
+
+      - name: Save Allure 3 report history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .allure/history/report/history.jsonl
+          key: allure-history-${{ github.ref_name }}-${{ github.run_number }}
+
+      - name: Upload Allure history for backup
         if: always()
         uses: actions/upload-artifact@v4
         with:
