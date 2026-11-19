@@ -68,6 +68,7 @@
                 <version>3.1.0</version>
                 <configuration>
                     <resultsDirectory>${project.build.directory}/allure-results</resultsDirectory>
+                    <historyEnabled>true</historyEnabled>
                 </configuration>
             </plugin>
         </plugins>

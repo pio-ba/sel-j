@@ -33,13 +33,19 @@ jobs:
           java-version: '25'
           cache: maven
 
-      - name: Download previous Allure history
+      - name: Cache Allure runtime
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: allure-${{ hashFiles('pom.xml') }}
+
+      - name: Download previous report history
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          mkdir -p target/allure-results/history
+          mkdir -p .allure/history/report
           mkdir -p history-download
 
           ARTIFACT_ID=$(
@@ -47,7 +53,7 @@ jobs:
               -H "Accept: application/vnd.github+json" \
               "/repos/${{ github.repository }}/actions/artifacts" \
               --jq '.artifacts
-                | map(select(.name == "allure-results-history" and .expired == false))
+                | map(select(.name == "allure-history" and .expired == false))
                 | sort_by(.created_at)
                 | reverse
                 | .[0].id // empty'
@@ -60,7 +66,12 @@ jobs:
               > history-download/history.zip
 
             unzip -o history-download/history.zip -d history-download
-            cp -R history-download/. target/allure-results/history/
+
+            HISTORY_FILE=$(find history-download -name history.jsonl -type f -print -quit)
+            if [ -n "$HISTORY_FILE" ]; then
+              cp "$HISTORY_FILE" .allure/history/report/history.jsonl
+              echo "Restored Allure history: $HISTORY_FILE"
+            fi
           fi
 
       - name: Run Maven tests
@@ -74,8 +85,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-history
-          path: target/site/allure-maven-plugin/history
+          name: allure-history
+          path: .allure/history/report/history.jsonl
           if-no-files-found: warn
           retention-days: 90
 
