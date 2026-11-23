@@ -54,7 +54,7 @@ public class ThreadLocalWebDriverFactory implements WebDriverFactory, Provider<W
                 driver.quit();
             }
         } catch (WebDriverException e) {
-            // Silently handle driver cleanup errors - driver may already be closed
+            throw new IllegalStateException("Failed to close WebDriver", e);
         } finally {
             driverHolder.remove();
         }

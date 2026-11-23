@@ -1,6 +1,7 @@
 package com.selj.tests;
 
 import com.selj.pages.LoginPage;
+import com.selj.pages.BasketPage;
 import com.selj.pages.ProductsPage;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
@@ -20,9 +21,9 @@ public class BasketTest extends BaseTest {
     @Story("Empty basket")
     @Severity(SeverityLevel.NORMAL)
     public void basketCountIsEmptyAfterLoginTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
+        BasketPage basket = openBasket(username, password);
 
-        assertThat(products.getBasketCount())
+        assertThat(basket.getBasketCount())
                 .as("Empty basket should not display a product count")
                 .isZero();
     }
@@ -34,9 +35,9 @@ public class BasketTest extends BaseTest {
     @Story("Empty basket")
     @Severity(SeverityLevel.NORMAL)
     public void basketHasNoProductsAfterLoginTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
+        BasketPage basket = openBasket(username, password);
 
-        assertThat(products.getBasketProductNames())
+        assertThat(basket.getBasketProductNames())
                 .as("Empty basket should not contain products")
                 .isEmpty();
     }
@@ -48,11 +49,11 @@ public class BasketTest extends BaseTest {
     @Story("Add products")
     @Severity(SeverityLevel.CRITICAL)
     public void addingProductIncrementsBasketCountTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
+        BasketPage basket = openBasket(username, password);
 
-        products.addToBasket(0);
+        basket.addToBasket(0);
 
-        assertThat(products.getBasketCount())
+        assertThat(basket.getBasketCount())
                 .as("Basket count should increase after adding a product")
                 .isEqualTo(1);
     }
@@ -64,12 +65,12 @@ public class BasketTest extends BaseTest {
     @Story("Add products")
     @Severity(SeverityLevel.CRITICAL)
     public void addingProductMarksProductAsSelectedTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
-        String productName = products.getProductNames().get(0);
+        BasketPage basket = openBasket(username, password);
+        String productName = basket.getProductName(0);
 
-        products.addToBasket(0);
+        basket.addToBasket(0);
 
-        assertThat(products.isInBasket(0))
+        assertThat(basket.isInBasket(0))
                 .as("%s should be marked as in the basket", productName)
                 .isTrue();
     }
@@ -81,12 +82,12 @@ public class BasketTest extends BaseTest {
     @Story("Add products")
     @Severity(SeverityLevel.CRITICAL)
     public void addingProductAddsProductToBasketTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
-        String productName = products.getProductNames().get(0);
+        BasketPage basket = openBasket(username, password);
+        String productName = basket.getProductName(0);
 
-        products.addToBasket(0);
+        basket.addToBasket(0);
 
-        assertThat(products.getBasketProductNames())
+        assertThat(basket.getBasketProductNames())
                 .as("Basket should contain the selected product")
                 .containsExactly(productName);
     }
@@ -98,12 +99,12 @@ public class BasketTest extends BaseTest {
     @Story("Add products")
     @Severity(SeverityLevel.CRITICAL)
     public void addingMultipleProductsUpdatesBasketCountTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
+        BasketPage basket = openBasket(username, password);
 
-        products.addToBasket(0);
-        products.addToBasket(1);
+        basket.addToBasket(0);
+        basket.addToBasket(1);
 
-        assertThat(products.getBasketCount())
+        assertThat(basket.getBasketCount())
                 .as("Basket count should include both added products")
                 .isEqualTo(2);
     }
@@ -115,14 +116,14 @@ public class BasketTest extends BaseTest {
     @Story("Add products")
     @Severity(SeverityLevel.CRITICAL)
     public void addingMultipleProductsAddsAllProductsTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
-        String firstProduct = products.getProductNames().get(0);
-        String secondProduct = products.getProductNames().get(1);
+        BasketPage basket = openBasket(username, password);
+        String firstProduct = basket.getProductName(0);
+        String secondProduct = basket.getProductName(1);
 
-        products.addToBasket(0);
-        products.addToBasket(1);
+        basket.addToBasket(0);
+        basket.addToBasket(1);
 
-        assertThat(products.getBasketProductNames())
+        assertThat(basket.getBasketProductNames())
                 .as("Basket should contain both selected products")
                 .containsExactlyInAnyOrder(firstProduct, secondProduct);
     }
@@ -134,13 +135,13 @@ public class BasketTest extends BaseTest {
     @Story("Remove products")
     @Severity(SeverityLevel.CRITICAL)
     public void removingProductDecrementsBasketCountTest(String username, String password) {
-        ProductsPage products = openProducts(username, password)
+        BasketPage basket = openBasket(username, password)
                 .addToBasket(0)
                 .addToBasket(1);
 
-        products.removeFromBasket(0);
+        basket.removeFromBasket(0);
 
-        assertThat(products.getBasketCount())
+        assertThat(basket.getBasketCount())
                 .as("Basket count should decrease after removing a product")
                 .isEqualTo(1);
     }
@@ -152,11 +153,11 @@ public class BasketTest extends BaseTest {
     @Story("Remove products")
     @Severity(SeverityLevel.CRITICAL)
     public void removingProductUnmarksProductTest(String username, String password) {
-        ProductsPage products = openProducts(username, password).addToBasket(0);
+        BasketPage basket = openBasket(username, password).addToBasket(0);
 
-        products.removeFromBasket(0);
+        basket.removeFromBasket(0);
 
-        assertThat(products.isInBasket(0))
+        assertThat(basket.isInBasket(0))
                 .as("Removed product should no longer be marked as in the basket")
                 .isFalse();
     }
@@ -168,13 +169,13 @@ public class BasketTest extends BaseTest {
     @Story("Remove products")
     @Severity(SeverityLevel.CRITICAL)
     public void removingProductLeavesOtherProductsTest(String username, String password) {
-        ProductsPage products = openProducts(username, password)
+        BasketPage basket = openBasket(username, password)
                 .addToBasket(0)
                 .addToBasket(1);
 
-        products.removeFromBasket(0);
+        basket.removeFromBasket(0);
 
-        assertThat(products.isInBasket(1))
+        assertThat(basket.isInBasket(1))
                 .as("Other products should remain in the basket")
                 .isTrue();
     }
@@ -186,14 +187,14 @@ public class BasketTest extends BaseTest {
     @Story("Remove products")
     @Severity(SeverityLevel.CRITICAL)
     public void removingProductRemovesOnlySelectedProductTest(String username, String password) {
-        ProductsPage products = openProducts(username, password)
+        BasketPage basket = openBasket(username, password)
                 .addToBasket(0)
                 .addToBasket(1);
-        String secondProduct = products.getProductNames().get(1);
+        String secondProduct = basket.getProductName(1);
 
-        products.removeFromBasket(0);
+        basket.removeFromBasket(0);
 
-        assertThat(products.getBasketProductNames())
+        assertThat(basket.getBasketProductNames())
                 .as("Only the remaining product should be in the basket")
                 .containsExactly(secondProduct);
     }
@@ -205,11 +206,11 @@ public class BasketTest extends BaseTest {
     @Story("Remove products")
     @Severity(SeverityLevel.CRITICAL)
     public void removingLastProductReturnsCountToZeroTest(String username, String password) {
-        ProductsPage products = openProducts(username, password).addToBasket(0);
+        BasketPage basket = openBasket(username, password).addToBasket(0);
 
-        products.removeFromBasket(0);
+        basket.removeFromBasket(0);
 
-        assertThat(products.getBasketCount())
+        assertThat(basket.getBasketCount())
                 .as("Basket count should return to zero when its last product is removed")
                 .isZero();
     }
@@ -221,11 +222,11 @@ public class BasketTest extends BaseTest {
     @Story("Remove products")
     @Severity(SeverityLevel.CRITICAL)
     public void removingLastProductEmptiesBasketTest(String username, String password) {
-        ProductsPage products = openProducts(username, password).addToBasket(0);
+        BasketPage basket = openBasket(username, password).addToBasket(0);
 
-        products.removeFromBasket(0);
+        basket.removeFromBasket(0);
 
-        assertThat(products.getBasketProductNames())
+        assertThat(basket.getBasketProductNames())
                 .as("Basket should be empty after removing its last product")
                 .isEmpty();
     }
@@ -237,13 +238,13 @@ public class BasketTest extends BaseTest {
     @Story("Basket persistence")
     @Severity(SeverityLevel.NORMAL)
     public void basketCountPersistsAfterReloadTest(String username, String password) {
-        ProductsPage products = openProducts(username, password)
+        BasketPage basket = openBasket(username, password)
                 .addToBasket(0)
                 .addToBasket(2);
 
-        products.reload();
+        basket.reload();
 
-        assertThat(products.getBasketCount())
+        assertThat(basket.getBasketCount())
                 .as("Basket count should persist after reloading the products page")
                 .isEqualTo(2);
     }
@@ -255,20 +256,20 @@ public class BasketTest extends BaseTest {
     @Story("Basket persistence")
     @Severity(SeverityLevel.NORMAL)
     public void basketContentsPersistAfterReloadTest(String username, String password) {
-        ProductsPage products = openProducts(username, password)
+        BasketPage basket = openBasket(username, password)
                 .addToBasket(0)
                 .addToBasket(2);
-        String firstProduct = products.getProductNames().get(0);
-        String thirdProduct = products.getProductNames().get(2);
+        String firstProduct = basket.getProductName(0);
+        String thirdProduct = basket.getProductName(2);
 
-        products.reload();
+        basket.reload();
 
-        assertThat(products.getBasketProductNames())
+        assertThat(basket.getBasketProductNames())
                 .as("Basket contents should persist after reloading the products page")
                 .containsExactlyInAnyOrder(firstProduct, thirdProduct);
     }
 
-    private ProductsPage openProducts(String username, String password) {
+    private BasketPage openBasket(String username, String password) {
         LoginPage loginPage = loginPage();
         ProductsPage products = loginPage.loginAndGetDashboard(username, password);
 
@@ -276,6 +277,6 @@ public class BasketTest extends BaseTest {
                 .as("Products page should open after login")
                 .contains("Products");
 
-        return products;
+        return basketPageProvider.get();
     }
 }

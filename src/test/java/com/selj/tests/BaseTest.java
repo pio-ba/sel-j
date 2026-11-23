@@ -4,11 +4,15 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.selj.core.WebDriverFactory;
+import com.selj.pages.AccountMenuPage;
+import com.selj.pages.BasketPage;
+import com.selj.pages.FavoritesPage;
 import com.selj.pages.LoginPage;
 import io.qameta.allure.Attachment;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -26,6 +30,15 @@ public abstract class BaseTest {
 
     @Inject
     protected Provider<LoginPage> loginPageProvider;
+
+    @Inject
+    protected Provider<BasketPage> basketPageProvider;
+
+    @Inject
+    protected Provider<FavoritesPage> favoritesPageProvider;
+
+    @Inject
+    protected Provider<AccountMenuPage> accountMenuPageProvider;
 
     protected WebDriver driver() {
         return webDriverFactory.create();
@@ -64,8 +77,8 @@ public abstract class BaseTest {
             if (driver != null) {
                 return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             }
-        } catch (Exception _) {
-            // screenshot failure should never break the test suite
+        } catch (WebDriverException e) {
+            throw new IllegalStateException("Failed to capture screenshot for test: " + testName, e);
         }
         return new byte[0];
     }
