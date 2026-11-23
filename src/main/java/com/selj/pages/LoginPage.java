@@ -38,7 +38,7 @@ public class LoginPage extends BasePage {
      * Enter username in the input field.
      */
     public LoginPage enterUsername(String username) {
-        actions.type(usernameInput, username);
+        getActions().type(usernameInput, username);
         return this;
     }
 
@@ -46,7 +46,7 @@ public class LoginPage extends BasePage {
      * Enter password in the input field.
      */
     public LoginPage enterPassword(String password) {
-        actions.type(passwordInput, password);
+        getActions().type(passwordInput, password);
         return this;
     }
 
@@ -54,7 +54,7 @@ public class LoginPage extends BasePage {
      * Click login button (stay on LoginPage for error handling).
      */
     public LoginPage clickLogin() {
-        actions.click(loginButton);
+        getActions().click(loginButton);
         return this;
     }
 
@@ -72,6 +72,6 @@ public class LoginPage extends BasePage {
      * Get error message displayed on login page.
      */
     public String getErrorMessage() {
-        return actions.getText(errorMessage);
+        return getActions().getText(errorMessage);
     }
 }

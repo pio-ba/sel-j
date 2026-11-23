@@ -36,6 +36,7 @@ public class ProductsPage extends BasePage {
     private static final Pattern PRICE_PATTERN = Pattern.compile("\\$\\s*(\\d+(?:\\.\\d{1,2})?)");
     private static final String LOW_TO_HIGH = "Low to High (Price)";
     private static final String HIGH_TO_LOW = "High to Low (Price)";
+    private static final String REMOVE_FROM_CART = "Remove from cart";
 
     private final Provider<LoginPage> loginPageProvider;
     private final String baseUrl;
@@ -52,7 +53,7 @@ public class ProductsPage extends BasePage {
      * Get page title text.
      */
     public String getPageTitle() {
-        return actions.getText(pageTitle);
+        return getActions().getText(pageTitle);
     }
 
     /**
@@ -74,8 +75,8 @@ public class ProductsPage extends BasePage {
      */
     public List<BigDecimal> getProductPrices() {
         List<BigDecimal> prices = new ArrayList<>();
-        for (WebElement addButton : getAddToCartButtons()) {
-            WebElement priceRow = addButton.findElement(By.xpath(".."));
+        for (WebElement cartButton : getProductCartButtons()) {
+            WebElement priceRow = cartButton.findElement(By.xpath(".."));
             Matcher matcher = PRICE_PATTERN.matcher(priceRow.getText());
             if (matcher.find()) {
                 prices.add(new BigDecimal(matcher.group(1)));
@@ -88,27 +89,34 @@ public class ProductsPage extends BasePage {
      * Open sorting menu and select one of the supported options.
      */
     public ProductsPage sortBy(String optionText) {
-        WebDriver driver = webDriverFactory.create();
+        WebDriver driver = getWebDriverFactory().create();
         WebElement sortButton = findSortButton(driver);
-        actions.click(sortButton);
+        getActions().click(sortButton);
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        String dataValue = LOW_TO_HIGH.equals(optionText) ? "low"
-                : HIGH_TO_LOW.equals(optionText) ? "high"
-                : null;
+        String dataValue = null;
+        if (LOW_TO_HIGH.equals(optionText)) {
+            dataValue = "low";
+        } else if (HIGH_TO_LOW.equals(optionText)) {
+            dataValue = "high";
+        }
         By optionLocator = dataValue != null
                 ? By.cssSelector("[role='option'][data-value='" + dataValue + "']")
                 : By.xpath("//*[@role='option'][normalize-space()='" + optionText + "']");
         WebElement option = wait.until(ExpectedConditions.elementToBeClickable(optionLocator));
-        actions.click(option);
+        getActions().click(option);
 
-        BigDecimal expectedFirstPrice = LOW_TO_HIGH.equals(optionText)
-                ? new BigDecimal("45.00")
-                : HIGH_TO_LOW.equals(optionText) ? new BigDecimal("256.45") : null;
+        BigDecimal expectedFirstPrice = null;
+        if (LOW_TO_HIGH.equals(optionText)) {
+            expectedFirstPrice = new BigDecimal("45.00");
+        } else if (HIGH_TO_LOW.equals(optionText)) {
+            expectedFirstPrice = new BigDecimal("256.45");
+        }
         if (expectedFirstPrice != null) {
-            wait.until(driverInstance -> {
+            BigDecimal expectedPrice = expectedFirstPrice;
+            wait.until(_ -> {
                 List<BigDecimal> prices = getProductPrices();
-                return !prices.isEmpty() && expectedFirstPrice.compareTo(prices.getFirst()) == 0;
+                return !prices.isEmpty() && expectedPrice.compareTo(prices.getFirst()) == 0;
             });
         } else {
             wait.until(driverInstance -> !findSortButton(driverInstance).getText().trim().equals("Select..."));
@@ -120,8 +128,8 @@ public class ProductsPage extends BasePage {
      * Return options visible in the sorting menu.
      */
     public List<String> getSortOptions() {
-        WebDriver driver = webDriverFactory.create();
-        actions.click(findSortButton(driver));
+        WebDriver driver = getWebDriverFactory().create();
+        getActions().click(findSortButton(driver));
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         List<WebElement> options = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
                 By.cssSelector("[role='option']")));
@@ -136,7 +144,7 @@ public class ProductsPage extends BasePage {
     /**
      * Add or remove the first product from favorites.
      */
-    public ProductsPage toggleFavorite(int productIndex) {
+    public void toggleFavorite(int productIndex) {
         if (productIndex < 0) {
             throw new IllegalArgumentException("Product index cannot be negative");
         }
@@ -145,11 +153,10 @@ public class ProductsPage extends BasePage {
             throw new IllegalArgumentException("Product index out of range: " + productIndex);
         }
         boolean wasFavorite = isFavorite(productIndex);
-        actions.click(favorites.get(productIndex));
+        getActions().click(favorites.get(productIndex));
 
-        WebDriverWait wait = new WebDriverWait(webDriverFactory.create(), Duration.ofSeconds(5));
-        wait.until(driverInstance -> isFavorite(productIndex) != wasFavorite);
-        return this;
+        WebDriverWait wait = new WebDriverWait(getWebDriverFactory().create(), Duration.ofSeconds(5));
+        wait.until(_ -> isFavorite(productIndex) != wasFavorite);
     }
 
     public boolean isFavorite(int productIndex) {
@@ -198,24 +205,81 @@ public class ProductsPage extends BasePage {
     }
 
     public ProductsPage reload() {
-        webDriverFactory.create().navigate().refresh();
-        WebDriverWait wait = new WebDriverWait(webDriverFactory.create(), Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//button[normalize-space()='Add to cart']")));
+        getWebDriverFactory().create().navigate().refresh();
+        WebDriverWait wait = new WebDriverWait(getWebDriverFactory().create(), Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//button[normalize-space()='Add to cart' or normalize-space()='Remove from cart']")));
         return this;
     }
 
     public String getVisibleText() {
-        return actions.getText(body);
+        return getActions().getText(body);
     }
 
-    private List<WebElement> getAddToCartButtons() {
-        return webDriverFactory.create().findElements(By.xpath("//button[normalize-space()='Add to cart']"));
+    public ProductsPage addToBasket(int productIndex) {
+        setBasketState(productIndex, true);
+        return this;
+    }
+
+    public void removeFromBasket(int productIndex) {
+        setBasketState(productIndex, false);
+    }
+
+    public boolean isInBasket(int productIndex) {
+        return REMOVE_FROM_CART.equals(getProductCartButton(productIndex).getText().trim());
+    }
+
+    public int getBasketCount() {
+        List<WebElement> count = getWebDriverFactory().create()
+                .findElements(By.cssSelector("span.bg-qa-clr"));
+        return count.isEmpty() ? 0 : Integer.parseInt(count.getFirst().getText().trim());
+    }
+
+    public List<String> getBasketProductNames() {
+        List<String> names = new ArrayList<>();
+        List<WebElement> cards = getProductCards();
+        List<WebElement> buttons = getProductCartButtons();
+        for (int i = 0; i < buttons.size(); i++) {
+            if (REMOVE_FROM_CART.equals(buttons.get(i).getText().trim())) {
+                names.add(cards.get(i).getText().trim().split("\\R", 2)[0].trim());
+            }
+        }
+        return names;
+    }
+
+    private void setBasketState(int productIndex, boolean inBasket) {
+        WebElement button = getProductCartButton(productIndex);
+        boolean currentlyInBasket = REMOVE_FROM_CART.equals(button.getText().trim());
+        if (currentlyInBasket == inBasket) {
+            return;
+        }
+
+        int expectedCount = getBasketCount() + (inBasket ? 1 : -1);
+        getActions().click(button);
+        new WebDriverWait(getWebDriverFactory().create(), Duration.ofSeconds(10)).until(_ -> {
+            WebElement updatedButton = getProductCartButton(productIndex);
+            return (REMOVE_FROM_CART.equals(updatedButton.getText().trim()) == inBasket)
+                    && getBasketCount() == expectedCount;
+        });
+    }
+
+    private WebElement getProductCartButton(int productIndex) {
+        List<WebElement> buttons = getProductCartButtons();
+        if (productIndex < 0 || productIndex >= buttons.size()) {
+            throw new IllegalArgumentException("Product index out of range: " + productIndex);
+        }
+        return buttons.get(productIndex);
+    }
+
+    private List<WebElement> getProductCartButtons() {
+        return getWebDriverFactory().create().findElements(By.xpath(
+                "//button[normalize-space()='Add to cart' or normalize-space()='" + REMOVE_FROM_CART + "']"));
     }
 
     private List<WebElement> getProductCards() {
         List<WebElement> cards = new ArrayList<>();
-        for (WebElement addButton : getAddToCartButtons()) {
-            cards.add(addButton.findElement(By.xpath("../..")));
+        for (WebElement cartButton : getProductCartButtons()) {
+            cards.add(cartButton.findElement(By.xpath("../..")));
         }
         return cards;
     }
@@ -236,19 +300,19 @@ public class ProductsPage extends BasePage {
      * Click logout button and return to login page.
      */
     public LoginPage logout() {
-        WebDriver driver = webDriverFactory.create();
+        WebDriver driver = getWebDriverFactory().create();
         WebElement accountButton = new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(
                         By.xpath("//button[contains(normalize-space(), '@')]")));
-        actions.click(accountButton);
+        getActions().click(accountButton);
 
         WebElement logoutOption = new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(
                         By.xpath("//*[@role='menuitem' or @role='button'][contains(translate(normalize-space(), 'LOGOUT', 'logout'), 'logout') or contains(translate(normalize-space(), 'LOGOUT', 'logout'), 'log out') or contains(normalize-space(), 'Sign out')]")));
-        actions.click(logoutOption);
+        getActions().click(logoutOption);
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException interruptedException) {
+        } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
         }
         driver.manage().deleteAllCookies();
