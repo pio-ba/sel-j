@@ -14,4 +14,9 @@
             <class name="com.selj.tests.ProductsTest"/>
         </classes>
     </test>
+    <test name="Basket Tests">
+        <classes>
+            <class name="com.selj.tests.BasketTest"/>
+        </classes>
+    </test>
 </suite>
