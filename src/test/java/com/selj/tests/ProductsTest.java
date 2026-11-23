@@ -1,6 +1,8 @@
 package com.selj.tests;
 
 import com.selj.pages.LoginPage;
+import com.selj.pages.FavoritesPage;
+import com.selj.pages.AccountMenuPage;
 import com.selj.pages.ProductsPage;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
@@ -26,21 +28,21 @@ public class ProductsTest extends BaseTest {
     @Story("Add and remove favorite")
     @Severity(SeverityLevel.CRITICAL)
     public void addAndRemoveFavoriteTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
-        String productName = products.getFavoriteProductName(0);
+        FavoritesPage favorites = openFavorites(username, password);
+        String productName = favorites.getFavoriteProductName(0);
 
-        products.toggleFavorite(0);
+        favorites.toggleFavorite(0);
 
-        assertThat(products.isFavorite(0))
+        assertThat(favorites.isFavorite(0))
                 .as("%s should be marked as favorite", productName)
                 .isTrue();
-        assertThat(products.getFavoriteProductNames())
+        assertThat(favorites.getFavoriteProductNames())
                 .as("Favorite product should be present in favorites state")
                 .contains(productName);
 
-        products.toggleFavorite(0);
+        favorites.toggleFavorite(0);
 
-        assertThat(products.isFavorite(0))
+        assertThat(favorites.isFavorite(0))
                 .as("%s should be removed from favorites", productName)
                 .isFalse();
     }
@@ -52,20 +54,20 @@ public class ProductsTest extends BaseTest {
     @Story("Favorite persistence after reload")
     @Severity(SeverityLevel.NORMAL)
     public void favoritePersistsAfterReloadTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
-        String productName = products.getFavoriteProductName(0);
+        FavoritesPage favorites = openFavorites(username, password);
+        String productName = favorites.getFavoriteProductName(0);
 
-        if (products.isFavorite(0)) {
-            products.toggleFavorite(0);
+        if (favorites.isFavorite(0)) {
+            favorites.toggleFavorite(0);
         }
-        products.toggleFavorite(0);
-        products.reload();
+        favorites.toggleFavorite(0);
+        favorites.reload();
 
-        assertThat(products.isFavorite(0))
+        assertThat(favorites.isFavorite(0))
                 .as("Favorite state for %s should persist after reload", productName)
                 .isTrue();
 
-        products.toggleFavorite(0);
+        favorites.toggleFavorite(0);
     }
 
     @Test(dataProvider = "productsLogin", dataProviderClass = TestData.class,
@@ -75,22 +77,24 @@ public class ProductsTest extends BaseTest {
     @Story("Favorite persistence after login")
     @Severity(SeverityLevel.NORMAL)
     public void favoritePersistsAfterLoginTest(String username, String password) {
-        ProductsPage products = openProducts(username, password);
-        String productName = products.getFavoriteProductName(0);
+        FavoritesPage favorites = openFavorites(username, password);
+        String productName = favorites.getFavoriteProductName(0);
 
-        if (products.isFavorite(0)) {
-            products.toggleFavorite(0);
+        if (favorites.isFavorite(0)) {
+            favorites.toggleFavorite(0);
         }
-        products.toggleFavorite(0);
+        favorites.toggleFavorite(0);
 
-        LoginPage loginPage = products.logout();
-        products = loginPage.loginAndGetDashboard(username, password);
+        AccountMenuPage accountMenu = accountMenuPageProvider.get();
+        LoginPage loginPage = accountMenu.logout();
+        loginPage.loginAndGetDashboard(username, password);
+        favorites = favoritesPageProvider.get();
 
-        assertThat(products.isFavorite(0))
+        assertThat(favorites.isFavorite(0))
                 .as("Favorite state for %s should persist after login", productName)
                 .isTrue();
 
-        products.toggleFavorite(0);
+        favorites.toggleFavorite(0);
     }
 
     @Test(dataProvider = "productsLogin", dataProviderClass = TestData.class,
@@ -174,6 +178,11 @@ public class ProductsTest extends BaseTest {
         return products;
     }
 
+    private FavoritesPage openFavorites(String username, String password) {
+        openProducts(username, password);
+        return favoritesPageProvider.get();
+    }
+
     private void assertProductPricesAreSorted(List<BigDecimal> prices, boolean descending) {
         assertThat(prices)
                 .as("At least two products are required to verify sorting")
@@ -192,4 +201,3 @@ public class ProductsTest extends BaseTest {
         }
     }
 }
-

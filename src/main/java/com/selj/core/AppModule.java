@@ -5,6 +5,9 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import com.selj.pages.ProductsPage;
 import com.selj.pages.LoginPage;
+import com.selj.pages.BasketPage;
+import com.selj.pages.FavoritesPage;
+import com.selj.pages.AccountMenuPage;
 import com.selj.actions.WebElementInteraction;
 import com.selj.actions.WebElementWait;
 
@@ -72,6 +75,9 @@ public class AppModule extends AbstractModule {
         // 5. Bind page objects (not singletons - fresh state per request)
         bind(LoginPage.class);
         bind(ProductsPage.class);
+        bind(BasketPage.class);
+        bind(FavoritesPage.class);
+        bind(AccountMenuPage.class);
     }
 
     private void bindProperties() {
